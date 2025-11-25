@@ -1,22 +1,222 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-  <head>
-    <script src="script.js " defer></script>
-    <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="styles.css" />
-    <title>Better Instagram</title>
-  </head>
-  <body>
-    <h1 style="text-align: center">Arrange Images by drag and drop</h1>
-    <div class="flex" id="parent">
-      <div draggable="true" class="image" >Image 1</div>
-      <div draggable="true" class="image" >Image 2</div>
-      <div draggable="true" class="image" >Image 3</div>
-      <div draggable="true" class="image" >Image 4</div>
-      <div draggable="true" class="image" >Image 5</div>
-      <div draggable="true" class="image" >Image 6</div>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Better Instagram — Drag to Reposition (Swap)</title>
+  <style>
+    :root{
+      --gap:12px;
+      --panel-radius:12px;
+      --w:900px;
+    }
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;display:flex;align-items:center;justify-content:center;min-height:100vh;background:#f3f4f6;margin:0;padding:20px}
+    .wrap{width:100%;max-width:var(--w);} 
+    h1{font-size:18px;margin:0 0 12px}
+    p.note{margin:0 0 18px;color:#444}
+
+    .container{
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      grid-auto-rows:180px;
+      gap:var(--gap);
+      background:transparent;
+    }
+
+    .panel{
+      border-radius:var(--panel-radius);
+      overflow:hidden;
+      display:flex;
+      align-items:flex-end;
+      justify-content:flex-start;
+      padding:10px;
+      box-shadow:0 6px 18px rgba(0,0,0,0.08);
+      background-size:cover;background-position:center center;
+      cursor:grab;
+      user-select:none;
+      transition:transform .16s ease, box-shadow .16s ease, outline .08s ease;
+      position:relative;
+    }
+    .panel:active{cursor:grabbing}
+
+    .panel.dragging{
+      opacity:0.55;
+      transform:scale(.98);
+      box-shadow:0 10px 30px rgba(0,0,0,0.14);
+      z-index:20;
+    }
+
+    .panel.drop-target{
+      outline:4px dashed rgba(255,255,255,0.6);
+    }
+
+    .img-text{
+      background:linear-gradient(0deg, rgba(0,0,0,0.58), transparent 40%);
+      color:white;padding:8px 10px;border-radius:8px;font-weight:600;font-size:13px;
+      backdrop-filter:blur(2px);
+    }
+
+    /* small responsive tweak */
+    @media (max-width:640px){
+      .container{grid-template-columns:repeat(2,1fr);grid-auto-rows:140px}
+    }
+
+    /* keyboard focus styles */
+    .panel:focus{outline:3px solid #2563eb}
+
+    /* helper */
+    .legend{margin-top:14px;color:#555;font-size:13px}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Better Instagram — Drag & Drop to Swap</h1>
+    <p class="note">Drag any tile and drop it on another tile to swap their images. (Each tile has id="div1" .. "div6" as requested.)</p>
+
+    <div class="container" id="grid">
+      <div id="div1" class="panel" role="img" draggable="true" tabindex="0"
+           data-alt="Woman holding camera on city street"
+           aria-label="Woman holding camera on city street"
+           style="background-image:url('https://images.unsplash.com/photo-1504198458649-3128b932f49b?q=80&w=1200&auto=format&fit=crop&ixlib=rb-4.0.3&s=1');">
+        <div class="img-text">div1 — camera</div>
+      </div>
+
+      <div id="div2" class="panel" role="img" draggable="true" tabindex="0"
+           data-alt="Close up of a colorful flower"
+           aria-label="Close up of a colorful flower"
+           style="background-image:url('https://images.unsplash.com/photo-1501004318641-b39e6451bec6?q=80&w=1200&auto=format&fit=crop&ixlib=rb-4.0.3&s=2');">
+        <div class="img-text">div2 — flower</div>
+      </div>
+
+      <div id="div3" class="panel" role="img" draggable="true" tabindex="0"
+           data-alt="Mountain landscape with lake"
+           aria-label="Mountain landscape with lake"
+           style="background-image:url('https://images.unsplash.com/photo-1501785888041-af3ef285b470?q=80&w=1200&auto=format&fit=crop&ixlib=rb-4.0.3&s=3');">
+        <div class="img-text">div3 — mountains</div>
+      </div>
+
+      <div id="div4" class="panel" role="img" draggable="true" tabindex="0"
+           data-alt="City skyline at dusk"
+           aria-label="City skyline at dusk"
+           style="background-image:url('https://images.unsplash.com/photo-1497435334943-cd3b6a1a2fbc?q=80&w=1200&auto=format&fit=crop&ixlib=rb-4.0.3&s=4');">
+        <div class="img-text">div4 — skyline</div>
+      </div>
+
+      <div id="div5" class="panel" role="img" draggable="true" tabindex="0"
+           data-alt="Minimal interior with plants"
+           aria-label="Minimal interior with plants"
+           style="background-image:url('https://images.unsplash.com/photo-1493666438817-866a91353ca9?q=80&w=1200&auto=format&fit=crop&ixlib=rb-4.0.3&s=5');">
+        <div class="img-text">div5 — interior</div>
+      </div>
+
+      <div id="div6" class="panel" role="img" draggable="true" tabindex="0"
+           data-alt="Aerial shot of a winding road"
+           aria-label="Aerial shot of a winding road"
+           style="background-image:url('https://images.unsplash.com/photo-1501785888041-af3ef285b470?q=80&w=1200&auto=format&fit=crop&ixlib=rb-4.0.3&s=6');">
+        <div class="img-text">div6 — road</div>
+      </div>
     </div>
-  </body>
+
+    <div class="legend">Tip: you can also press Space/Enter while focused on a tile to pick it up, then press Space/Enter on another tile to swap (basic keyboard support).</div>
+  </div>
+
+  <script>
+    // Swap-based drag & drop for six tiles. Keeps background-image + data-alt + aria-label + inner text in sync.
+    (function(){
+      const panels = Array.from(document.querySelectorAll('.panel'));
+      let dragSrc = null;
+
+      function onDragStart(e){
+        dragSrc = this;
+        this.classList.add('dragging');
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/plain', this.id);
+      }
+      function onDragEnd(){
+        this.classList.remove('dragging');
+        panels.forEach(p => p.classList.remove('drop-target'));
+      }
+      function onDragOver(e){
+        e.preventDefault(); // allow drop
+        e.dataTransfer.dropEffect = 'move';
+        return false;
+      }
+      function onDragEnter(e){
+        if(this !== dragSrc) this.classList.add('drop-target');
+      }
+      function onDragLeave(e){
+        this.classList.remove('drop-target');
+      }
+      function swapContents(a, b){
+        // swap background-image style
+        const aBg = a.style.backgroundImage;
+        const bBg = b.style.backgroundImage;
+        a.style.backgroundImage = bBg;
+        b.style.backgroundImage = aBg;
+
+        // swap textual/accessible data
+        const aAlt = a.getAttribute('data-alt');
+        const bAlt = b.getAttribute('data-alt');
+        a.setAttribute('data-alt', bAlt);
+        b.setAttribute('data-alt', aAlt);
+        a.setAttribute('aria-label', bAlt);
+        b.setAttribute('aria-label', aAlt);
+
+        // swap inner label that identifies the panel (keeps UI helpful)
+        const aText = a.querySelector('.img-text').textContent;
+        const bText = b.querySelector('.img-text').textContent;
+        a.querySelector('.img-text').textContent = bText;
+        b.querySelector('.img-text').textContent = aText;
+      }
+      function onDrop(e){
+        e.stopPropagation();
+        e.preventDefault();
+        panels.forEach(p => p.classList.remove('drop-target'));
+        const srcId = e.dataTransfer.getData('text/plain');
+        const src = document.getElementById(srcId);
+        const target = this;
+        if(!src || src === target) return false;
+        swapContents(src, target);
+        return false;
+      }
+
+      panels.forEach(p => {
+        p.addEventListener('dragstart', onDragStart);
+        p.addEventListener('dragend', onDragEnd);
+        p.addEventListener('dragover', onDragOver);
+        p.addEventListener('dragenter', onDragEnter);
+        p.addEventListener('dragleave', onDragLeave);
+        p.addEventListener('drop', onDrop);
+      });
+
+      // Basic keyboard support: press Space/Enter to "pick up" then move focus and press again to swap.
+      let keyboardPicked = null;
+      panels.forEach(p => {
+        p.addEventListener('keydown', (ev) => {
+          if(ev.code === 'Space' || ev.code === 'Enter'){
+            ev.preventDefault();
+            if(!keyboardPicked){
+              keyboardPicked = p;
+              p.classList.add('dragging');
+            } else if(keyboardPicked === p){
+              // cancel
+              keyboardPicked.classList.remove('dragging');
+              keyboardPicked = null;
+            } else {
+              swapContents(keyboardPicked, p);
+              keyboardPicked.classList.remove('dragging');
+              keyboardPicked = null;
+            }
+          }
+        });
+      });
+
+      // Make sure drop works if user drags outside the tile and drops back on the grid container
+      const grid = document.getElementById('grid');
+      grid.addEventListener('dragover', e => e.preventDefault());
+      grid.addEventListener('drop', e => e.preventDefault());
+
+    })();
+  </script>
+</body>
 </html>
